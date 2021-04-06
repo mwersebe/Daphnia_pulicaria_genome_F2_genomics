@@ -393,3 +393,8 @@ rate.plot_f <-ggplot(correlation, aes(x=V2, y=female_recomb_rates))+
 rate.plot_f
 
 ggarrange(rate.plot_m, rate.plot_f, labels = c("A)", "B)"), common.legend =F, widths = c(8,8))
+
+          
+##############################################################################################
+#Genomic Features and Recombination Rates
+
