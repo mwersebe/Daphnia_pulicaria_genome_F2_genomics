@@ -149,3 +149,99 @@ ggplot(CHR01, aes(x=mid, y=Fst_Daphnia_pulicaria_Daphnia_pulex))+
   ylab("Fixation Index (Fst)")+
   xlab("Window Midpoint (BP)")+
   theme_light()
+
+################################################################################################
+#Ignore above:
+#Re set working directory:
+#setwd("/home/matt/Linkag_Genomics")
+
+pe_pi_singlesnp_fst <- read.table("pulex_pulicaria_onesnp.weir.fst", sep = "\t", header = T)
+head(pe_pi_singlesnp_fst)
+quantile(pe_pi_singlesnp_fst$WEIR_AND_COCKERHAM_FST, c(0.975, 0.995), na.rm = T)
+
+#determine the outlier space:
+
+threshold.fst <- quantile(pe_pi_singlesnp_fst$WEIR_AND_COCKERHAM_FST, c(0.975), na.rm = T)
+threshold.fst
+
+#figure out whichones are outliers:
+pe_pi_singlesnp_fst <- pe_pi_singlesnp_fst %>% mutate(outlier = ifelse(WEIR_AND_COCKERHAM_FST > threshold.fst, "outlier", "background"))
+
+#tells you how many outliers
+
+pe_pi_singlesnp_fst %>% group_by(outlier) %>% tally()
+
+outliers <- subset(pe_pi_singlesnp_fst, pe_pi_singlesnp_fst$outlier == "outlier")
+head(outliers)
+
+# Manhattan plot:
+
+pe_pi_subset <- pe_pi_singlesnp_fst[complete.cases(pe_pi_singlesnp_fst),]
+
+PE_PI_SNPs <- c(1:(nrow(pe_pi_subset)))
+
+SNP_df <- data.frame(PE_PI_SNPs, pe_pi_subset)
+
+manhattan(SNP_df, chr = "CHROM", bp = "POS", p= "WEIR_AND_COCKERHAM_FST", snp = "PE_PI_SNPs", logp = F, ylab = "Weir and Cockerham Fst", ylim = c(0, 1.1), main = "Pulex-Pulicaria Per Site Fst")
+abline(h=threshold.fst, col = "red")
+
+################################################################################################################
+# PCAdapt outlier analysis
+library(pcadapt)
+
+# read in the vcf with just pulex and pulicaria:
+
+pp_pcaadapt <- read.pcadapt("Pulex_Pulicaria_onesnp_pcadapt.vcf.gz", type = "vcf")
+
+#Choose the best K of PCs for analysis:
+
+scree <- pcadapt(input = pp_pcaadapt, K =20)
+plot(scree, option = "screeplot")
+
+  #Score plots:
+pop.names <- c(rep("pulex", 82), rep("pulicaria", 41))
+plot(scree, option = "scores", pop = pop.names)
+plot(scree, option = "scores", i =3, j= 4, pop=pop.names)
+
+#compute the test statistic:
+
+Pca_test <- pcadapt(pp_pcaadapt, K=2)
+
+summary(Pca_test)
+
+#Manhattan Plots:
+
+plot(Pca_test, option = "manhattan")
+
+#QQ plots:
+
+plot(Pca_test, option = "qqplot")
+
+#The deviation away from the expected distribution confirms the presence of outliers:
+
+hist(Pca_test$pvalues, xlab = "p-values", main = "Histogram of P-values", breaks = 50, col = "grey")
+
+# Plot of the test statistic:
+
+plot(Pca_test, option = "stat.distribution")
+
+# Looks good: 
+
+#Move on to outlier detection:
+library(BiocManager)
+BiocManager::install("qvalue")
+
+# Use qvalues:
+
+library(qvalue)
+qval <- qvalue(Pca_test$pvalues)$qvalues
+alpha <- 0.1
+outliers_qvalues_pcadapt <- which(qval < alpha)
+length(outliers)
+
+# Bonferroni Correction: (Conservative)
+
+padj <- p.adjust(Pca_test$pvalues,method="bonferroni")
+alpha <- 0.1
+outliers_BF_pcadapt <- which(padj < alpha)
+length(outliers)
