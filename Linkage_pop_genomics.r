@@ -240,3 +240,18 @@ outliers_BF_pcadapt <- which(padj < alpha)
 length(outliers_BF_pcadapt)
 
 
+# To DO: 
+
+# add window recomb rate to Fst outliers. Calculate Fst around the each outlier in a 100 KB window centered on the outlier snp. 
+
+# Extract the outliers of from pca adapt, perform similar 100 KB window recomb rate as in fst 
+
+# Graph the windowed (100 KB non overlapping) Fst, Pi and Dxy estimates from the from Genomic General Ouput (Results On OSCER).
+
+# Finalize the graphing: Marey Maps, Recomb Landscapes, Differentiation v. Recomb (Boxplots), pop structure, Graph the linkage map (marker density).
+
+# Perform/graph correlations between recomb rate, repeat content, diversity + divergence and differentiation. Do outlier ANOVA.
+
+# Collate Results: 
+
+# Done.
