@@ -15,6 +15,9 @@ library(ape)
 library(poppr)
 library(ggplot2)
 library(tidyverse)
+library(qqman)
+library(pcadapt)
+library(qvalue)
 ###############################################################################
 
 #read in the single snp vcf file to perform DAPC
@@ -80,7 +83,7 @@ daphnia.plot
 
 ###############################################################################
 ###############################################################################
-library(qqman)
+
 
 #Adaptive Genomics:
 # Site-wise Fst outliers (calculated by VCFtools)
@@ -187,7 +190,7 @@ abline(h=threshold.fst, col = "red")
 
 ################################################################################################################
 # PCAdapt outlier analysis
-library(pcadapt)
+
 
 # read in the vcf with just pulex and pulicaria:
 
@@ -228,20 +231,12 @@ plot(Pca_test, option = "stat.distribution")
 # Looks good: 
 
 #Move on to outlier detection:
-library(BiocManager)
-BiocManager::install("qvalue")
-
-# Use qvalues:
-
-library(qvalue)
-qval <- qvalue(Pca_test$pvalues)$qvalues
-alpha <- 0.1
-outliers_qvalues_pcadapt <- which(qval < alpha)
-length(outliers)
 
 # Bonferroni Correction: (Conservative)
 
 padj <- p.adjust(Pca_test$pvalues,method="bonferroni")
 alpha <- 0.1
 outliers_BF_pcadapt <- which(padj < alpha)
-length(outliers)
+length(outliers_BF_pcadapt)
+
+
