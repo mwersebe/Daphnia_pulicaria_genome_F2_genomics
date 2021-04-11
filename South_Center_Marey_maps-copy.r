@@ -16,21 +16,23 @@ chrom1 <- ggplot(CHR1, aes(x=Physical_position)) +
   geom_point(aes(y=cM_male, color= "steelblue"))+
   geom_point(aes(y=cM_female, color= "darkred"))+
   ggtitle("LG 1 Marey Map")+
-  scale_color_identity(guide = "legend", labels = c("Female", "Male"))+
+  scale_color_identity(guide = "legend", labels = c("Female Map", "Male Map"))+
   xlab("Phyiscal Position (MB)")+ ylab("Genetic Position (cM)")
-
+chrom1
 #run window recomb rate estimates
 Window_size = 1000000
-Step_size = 100000
+Step_size = 10000
 recombination <- Recomb_rate(Data = CHR1, Window_Size = Window_size, Step_Size = Step_size)
 #Plot
 rec_rate_1 <- ggplot(recombination, aes(x=V3)) + 
   geom_line(aes(y = V1, color= "steelblue"))+
   geom_line(aes(y = V2, color = "darkred"))+
-  xlab("Phyiscal Position (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  ggtitle("LG 1 Recombination Landscape")+
-  scale_color_identity(guide = "legend", labels = c("Female", "Male"))
-
+  ylab("Recombination Rate (cM/MB)")+
+  xlab("Physical Position")+
+  scale_color_identity(guide = "legend", labels = c("Female Map", "Male Map"))+
+  ggtitle("Recombination Landscape on LG 1")+
+  theme_light()
+rec_rate_1
 #STITCH TOGETHER
 ggarrange(chrom1, rec_rate_1, labels = c("A) ", "B) "), common.legend =T, widths = c(5,5))
 
@@ -43,7 +45,7 @@ chrom2 <- ggplot(CHR2, aes(x=Physical_position)) +
   ggtitle("LG 2 Marey Map")+
   scale_color_identity(guide = "legend", labels = c("Female", "Male"))+
   xlab("Phyiscal Position (MB)")+ ylab("Genetic Position (cM)")
-
+chrom2
 #run window recomb rate estimates
 
 recombination <- Recomb_rate(Data = CHR2, Window_Size = Window_size, Step_Size = Step_size)
@@ -51,10 +53,11 @@ recombination <- Recomb_rate(Data = CHR2, Window_Size = Window_size, Step_Size =
 rec_rate_2 <- ggplot(recombination, aes(x=V3)) + 
   geom_line(aes(y = V1, color= "steelblue"))+
   geom_line(aes(y = V2, color = "darkred"))+
-  ggtitle("LG 2 Recombination Landscape")+
-  xlab("Phyiscal Position (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  scale_color_identity(guide = "legend", labels = c("Female", "Male"))
-
+  ylab("Recombination Rate (cM/MB)")+
+  xlab("Physical Position")+
+  scale_color_identity(guide = "legend", labels = c("Female Map", "Male Map"))+
+  ggtitle("Recombination Landscape on LG 2")+
+  theme_light()
 #STITCH TOGETHER
 ggarrange(chrom2, rec_rate_2, labels = c("A)", "B)"), common.legend =T, widths = c(5,5))
 
@@ -393,8 +396,3 @@ rate.plot_f <-ggplot(correlation, aes(x=V2, y=female_recomb_rates))+
 rate.plot_f
 
 ggarrange(rate.plot_m, rate.plot_f, labels = c("A)", "B)"), common.legend =F, widths = c(8,8))
-
-          
-##############################################################################################
-#Genomic Features and Recombination Rates
-
