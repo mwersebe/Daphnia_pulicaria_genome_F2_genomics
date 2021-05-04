@@ -18,7 +18,6 @@ library(ggpubr)
 library(tidyverse)
 library(qqman)
 library(pcadapt)
-library(qvalue)
 ###############################################################################
 
 #read in the single snp vcf file to perform DAPC
@@ -109,6 +108,8 @@ outliers <- subset(pe_pi_singlesnp_fst, pe_pi_singlesnp_fst$outlier == "outlier"
 head(outliers)
 
 #Shape of Fst distribution:
+fst <- pe_pi_singlesnp_fst$WEIR_AND_COCKERHAM_FST
+mean(fst, na.rm = T)
 
 Fst_distro <- ggplot(pe_pi_singlesnp_fst, aes(x = WEIR_AND_COCKERHAM_FST))+
   geom_histogram(color="darkblue", fill="lightblue")+
@@ -381,6 +382,14 @@ female_BP <- ggplot(analyze_recomb_fst, aes(x= outlier, y = female_rate))+
   stat_summary(fun.y=mean, geom="point", shape=23, size=4)+
   theme_light()
 #outlier sites do not fall more in low recombining regions: 
+#male rate
+
+recomb_background[mapply(is.infinite, recomb_background)] <- NA
+recomb_outliers[mapply(is.infinite, recomb_outliers)] <- NA
+
+t.test(recomb_outliers$`1`, recomb_background$`1`, alternative = "two.sided")
+
+t.test(recomb_outliers$`2`, recomb_background$`2`, alternative = "two.sided")
 
 
 #################################################################################################################
@@ -505,7 +514,7 @@ ggarrange(male_BP, female_BP, cds_BP, Fst_distro, ncol = 2, nrow = 2, labels = c
 
 ####################################################################################################################################################
 # Sliding Window Fst pi and Dxy: 
-
+setwd("~/Downloads")
 windows <- read.csv("~/Downloads/Pulex_Pulicaria_allsnp_popgenwindows_1MB-10KB.csv")
 
 #chromsome #1:
@@ -567,7 +576,7 @@ hybrid_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 #Plot Tajima's D on Chromosomes:
 
 puli_D <- read.table("/home/weider/LinkageMap_Genomics/VCFs/tajimad_pulicaria.tsv", header = T, sep = "\t")
-
+mean(puli_D$TajimaD)
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR01")
 mean_D <- mean(Puli_D_chr01$TajimaD)
@@ -581,7 +590,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   theme_light()+ expand_limits(x = 44000000)
 
 pulex_D <- read.table("/home/weider/LinkageMap_Genomics/VCFs/tajimad_pulex.tsv", header = T, sep = "\t")
-
+mean(pulex_D$TajimaD)
 
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR01")
 
@@ -621,6 +630,8 @@ plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
 
+
+ggarrange(Puli_pi, Pulex_pi, heights = c(6,6), ncol = 1, nrow = 2)
 
 
 #Chromosome 2: 
@@ -1631,7 +1642,7 @@ Puli_pi <- ggplot(windows_11, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
   xlab("Phyiscal Position")+
   ylab("Pi")+
-  ggtitle("Daphnia pulicaria Nucleotide Diversity on LG 10")+
+  ggtitle("Daphnia pulicaria Nucleotide Diversity on LG 11")+
   theme_light()+ expand_limits(x = 4700000)
 
 # PI Pulex

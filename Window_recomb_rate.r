@@ -40,7 +40,7 @@ return(recombination)
 Data <- read.table("SC_map_Chrom01-marey.txt", header=T)
 
 Window_size = 1000000
-Step_size = 100000
+Step_size = 10000
 
 recombination <- Recomb_rate(Data = Data, Window_Size = Window_size, Step_Size = Step_size)
 head(recombination)

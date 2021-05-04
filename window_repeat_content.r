@@ -9,11 +9,11 @@ LTR_content <- CHR01_repeat$V3
 CDS_content <- CHR01_repeat$V7
 
 
-male_window_recomb_rate <- recombination$V1
-female_window_recomb_rate <- recombination$V2
+male_window_recomb_rate <- recombination_1$V1
+female_window_recomb_rate <- recombination_1$V2
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, LTR_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
-head(Rep_Recomb_correlation)
+Rep_Recomb_correlation_1 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
+head(Rep_Recomb_correlation_1)
 
 
 rate.plot_m_rep <-ggplot(Rep_Recomb_correlation, aes(x=total_repeat_content, y=male_window_recomb_rate))+
@@ -69,7 +69,7 @@ CDS_content <- CHR02_repeat$V7
 male_window_recomb_rate <- recombination_2$V1
 female_window_recomb_rate <- recombination_2$V2
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_2 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
 
@@ -92,7 +92,7 @@ male_window_recomb_rate <- recombination_3$V1
 female_window_recomb_rate <- recombination_3$V2
 dim(recombination_3)
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position[1:1332], total_repeat_content[1:1332], CDS_content[1:1332], male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_3 <-cbind.data.frame(Phys_position[1:1332], total_repeat_content[1:1332], CDS_content[1:1332], male_window_recomb_rate, female_window_recomb_rate)
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
 
@@ -115,9 +115,9 @@ dim(recombination_4)
 
 getOption("na.action")
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:2248], female_window_recomb_rate[1:2248])
+Rep_Recomb_correlation_4 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:2248], female_window_recomb_rate[1:2248])
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_4[mapply(is.infinite, Rep_Recomb_correlation_4)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$`male_window_recomb_rate[1:2248]`, use="na.omit")
@@ -141,9 +141,9 @@ female_window_recomb_rate <- recombination_5$V2
 dim(recombination_5)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position[1:719], total_repeat_content[1:719], CDS_content[1:719], male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_5 <-cbind.data.frame(Phys_position[1:719], total_repeat_content[1:719], CDS_content[1:719], male_window_recomb_rate, female_window_recomb_rate)
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_5[mapply(is.infinite, Rep_Recomb_correlation_5)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -167,9 +167,9 @@ female_window_recomb_rate <- recombination_6$V2
 dim(recombination_6)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:2418], female_window_recomb_rate[1:2418])
+Rep_Recomb_correlation_6 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:2418], female_window_recomb_rate[1:2418])
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_6[mapply(is.infinite, Rep_Recomb_correlation_6)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -194,9 +194,9 @@ female_window_recomb_rate <- recombination_7$V2
 dim(recombination_7)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position[1:1884], total_repeat_content[1:1884], CDS_content[1:1884], male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_7 <-cbind.data.frame(Phys_position[1:1884], total_repeat_content[1:1884], CDS_content[1:1884], male_window_recomb_rate, female_window_recomb_rate)
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_7[mapply(is.infinite, Rep_Recomb_correlation_7)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -221,9 +221,9 @@ female_window_recomb_rate <- recombination_8$V2
 dim(recombination_8)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:1585], female_window_recomb_rate[1:1585])
+Rep_Recomb_correlation_8 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:1585], female_window_recomb_rate[1:1585])
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_8[mapply(is.infinite, Rep_Recomb_correlation_8)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -248,9 +248,9 @@ female_window_recomb_rate <- recombination_9$V2
 dim(recombination_9)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_9 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate, female_window_recomb_rate)
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_9[mapply(is.infinite, Rep_Recomb_correlation_9)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -274,9 +274,9 @@ female_window_recomb_rate <- recombination_10$V2
 dim(recombination_10)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position[1:717], total_repeat_content[1:717], CDS_content[1:717], male_window_recomb_rate, female_window_recomb_rate)
+Rep_Recomb_correlation_10 <-cbind.data.frame(Phys_position[1:717], total_repeat_content[1:717], CDS_content[1:717], male_window_recomb_rate, female_window_recomb_rate)
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_10[mapply(is.infinite, Rep_Recomb_correlation_10)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -300,9 +300,9 @@ female_window_recomb_rate <- recombination_11$V2
 dim(recombination_11)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:461], female_window_recomb_rate[1:461])
+Rep_Recomb_correlation_11 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:461], female_window_recomb_rate[1:461])
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_11[mapply(is.infinite, Rep_Recomb_correlation_11)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -325,9 +325,9 @@ female_window_recomb_rate <- recombination_12$V2
 dim(recombination_12)
 
 
-Rep_Recomb_correlation <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:322], female_window_recomb_rate[1:322])
+Rep_Recomb_correlation_12 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:322], female_window_recomb_rate[1:322])
 
-Rep_Recomb_correlation[mapply(is.infinite, Rep_Recomb_correlation)] <- NA
+Rep_Recomb_correlation_11[mapply(is.infinite, Rep_Recomb_correlation_11)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -337,3 +337,26 @@ cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$female_windo
 cor.test(Rep_Recomb_correlation$total_repeat_content, Rep_Recomb_correlation$male_window_recomb_rate)
 
 cor.test(Rep_Recomb_correlation$total_repeat_content, Rep_Recomb_correlation$female_window_recomb_rate)
+
+######################################################################################
+# Overall Correlations:
+names(Rep_Recomb_correlation_2) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_3) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_4) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_5) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_6) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_7) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_8) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_9) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_10) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_11) <- names(Rep_Recomb_correlation_1)
+names(Rep_Recomb_correlation_12) <- names(Rep_Recomb_correlation_1)
+Rep_Recomb_correlation_all <- rbind(Rep_Recomb_correlation_1, Rep_Recomb_correlation_2, Rep_Recomb_correlation_3, Rep_Recomb_correlation_4, Rep_Recomb_correlation_5, Rep_Recomb_correlation_6, Rep_Recomb_correlation_7, Rep_Recomb_correlation_8, Rep_Recomb_correlation_9, Rep_Recomb_correlation_10, Rep_Recomb_correlation_11, Rep_Recomb_correlation_12)
+
+cor.test(Rep_Recomb_correlation_all$CDS_content, Rep_Recomb_correlation_all$male_window_recomb_rate)
+
+cor.test(Rep_Recomb_correlation_all$CDS_content, Rep_Recomb_correlation_all$female_window_recomb_rate)
+
+cor.test(Rep_Recomb_correlation_all$total_repeat_content, Rep_Recomb_correlation_all$male_window_recomb_rate)
+
+cor.test(Rep_Recomb_correlation_all$total_repeat_content, Rep_Recomb_correlation_all$female_window_recomb_rate)

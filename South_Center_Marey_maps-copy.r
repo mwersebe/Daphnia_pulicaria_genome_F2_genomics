@@ -95,6 +95,7 @@ rec_rate_3 <- ggplot(recombination, aes(x=V3)) +
 #######################################################################################################
 #Chromosome #4
 CHR04 <- read.table("SC_map_Chrom04-marey.txt", header=T)
+
 chrom4 <- ggplot(CHR04, aes(x=Physical_position)) + 
   geom_point(aes(y=cM_male, color= "steelblue"))+
   geom_point(aes(y=cM_female, color= "darkred"))+
@@ -120,6 +121,7 @@ rec_rate_4 <- ggplot(recombination, aes(x=V3)) +
 #####################################################################################
 #Chromosome 5
 CHR05 <- read.table("SC_map_Chrom05-marey.txt", header=T)
+
 chrom5 <- ggplot(CHR05, aes(x=Physical_position)) + 
   geom_point(aes(y=cM_male, color= "steelblue"))+
   geom_point(aes(y=cM_female, color= "darkred"))+
@@ -275,6 +277,7 @@ rec_rate_10 <- ggplot(recombination, aes(x=V3)) +
 ###################################################################################################
 #Chromosome 11
 CHR11 <- read.table("SC_map_Chrom11-marey.txt", header=T)
+
 chrom11 <- ggplot(CHR11, aes(x=Physical_position)) + 
   geom_point(aes(y=cM_male, color= "steelblue"))+
   geom_point(aes(y=cM_female, color= "darkred"))+
@@ -300,6 +303,7 @@ rec_rate_11 <- ggplot(recombination, aes(x=V3)) +
 
 #Chromosome 12
 CHR12 <- read.table("SC_map_Chrom12-marey.txt", header=T)
+
 chrom12 <- ggplot(CHR12, aes(x=Physical_position)) + 
   geom_point(aes(y=cM_male, color= "steelblue"))+
   geom_point(aes(y=cM_female, color= "darkred"))+
