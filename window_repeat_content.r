@@ -327,7 +327,7 @@ dim(recombination_12)
 
 Rep_Recomb_correlation_12 <-cbind.data.frame(Phys_position, total_repeat_content, CDS_content, male_window_recomb_rate[1:322], female_window_recomb_rate[1:322])
 
-Rep_Recomb_correlation_11[mapply(is.infinite, Rep_Recomb_correlation_11)] <- NA
+Rep_Recomb_correlation_12[mapply(is.infinite, Rep_Recomb_correlation_12)] <- NA
 
 
 cor.test(Rep_Recomb_correlation$CDS_content, Rep_Recomb_correlation$male_window_recomb_rate)
@@ -360,3 +360,37 @@ cor.test(Rep_Recomb_correlation_all$CDS_content, Rep_Recomb_correlation_all$fema
 cor.test(Rep_Recomb_correlation_all$total_repeat_content, Rep_Recomb_correlation_all$male_window_recomb_rate)
 
 cor.test(Rep_Recomb_correlation_all$total_repeat_content, Rep_Recomb_correlation_all$female_window_recomb_rate)
+
+#Plot for Figure: 
+
+rate.plot_m_rep <-ggplot(Rep_Recomb_correlation_all, aes(x=total_repeat_content, y=male_window_recomb_rate))+
+  geom_point(color= "steelblue")+
+  ggtitle("Male Map Repeat Relationship")+
+  xlab("Repeat Content (Proportion)")+ ylab("Recombination Rate (cM/MB)")+
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95)+theme_light()
+
+
+rate.plot_f_rep <-ggplot(Rep_Recomb_correlation_all, aes(x=total_repeat_content, y=female_window_recomb_rate))+
+  geom_point(color= "darkred")+
+  ggtitle("Female Map Repeat Relationship")+
+  xlab("Repeat Content (Proportion)")+ ylab("Recombination Rate (cM/MB)")+
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95)+theme_light()
+rate.plot_f_rep
+
+rate.plot_f_cds <-ggplot(Rep_Recomb_correlation_all, aes(x=CDS_content, y=female_window_recomb_rate))+
+  geom_point(color= "darkred")+
+  ggtitle("Female Map CDS Relationship")+
+  xlab("CDS Content (Proportion)")+ ylab("Recombination Rate (cM/MB)")+
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95)+theme_light()
+rate.plot_f_cds
+
+rate.plot_m_cds <-ggplot(Rep_Recomb_correlation_all, aes(x=CDS_content, y=male_window_recomb_rate))+
+  geom_point(color= "steelblue")+
+  ggtitle("Male Map CDS Relationship")+
+  xlab("CDS Content (Proportion)")+ ylab("Recombination Rate (cM/MB)")+
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95)+theme_light()
+rate.plot_m_cds
+
+#arrange 
+
+ggarrange(rate.plot_m_rep, rate.plot_f_rep, rate.plot_m_cds, rate.plot_f_cds, labels = c("A) ", "B) ", "C) ", "D) "), ncol = 2, nrow = 2)
