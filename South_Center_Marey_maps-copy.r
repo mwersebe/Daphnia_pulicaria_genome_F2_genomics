@@ -380,16 +380,19 @@ corr.plot_m <-ggplot(correlation, aes(x=V2, y=V4))+
   geom_point(color= "steelblue")+
   ggtitle("Male Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Genetic Length (cM)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 270, method = "pearson")+
+  stat_regline_equation(label.y = 250)
 corr.plot_m
 
 corr.plot_f <-ggplot(correlation, aes(x=V2, y=V5))+
   geom_point(color=  "darkred")+
   ggtitle("Female Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Genetic Length (cM)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 220, method = "pearson")+
+  stat_regline_equation(label.y = 200)
 corr.plot_f
-
 
 #Recombination Rates
 
@@ -418,14 +421,18 @@ rate.plot_m <-ggplot(correlation, aes(x=V2, y=male_recomb_rate))+
   geom_point(color= "steelblue")+
   ggtitle("Male Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 25, label.x = 2e+07, method = "pearson")+
+  stat_regline_equation(label.y = 20, label.x = 2e+07)
 rate.plot_m
 
 rate.plot_f <-ggplot(correlation, aes(x=V2, y=female_recomb_rates))+
   geom_point(color=  "darkred")+
   ggtitle("Female Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 25, label.x = 2e+07, method = "pearson")+
+  stat_regline_equation(label.y = 20, label.x = 2e+07)
 rate.plot_f
 
 ggarrange(corr.plot_m, corr.plot_f, rate.plot_m, rate.plot_f, labels = c("A)", "B)", "C)", "D)"), ncol = 2, nrow = 2 )
