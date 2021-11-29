@@ -35,7 +35,10 @@ recombination <- as.data.frame(rates)
 
 return(recombination)
 }
-#Example Use
+
+
+
+##Example Use
 
 Data <- read.table("SC_map_Chrom01-marey.txt", header=T)
 

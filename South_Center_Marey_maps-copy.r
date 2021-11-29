@@ -2,7 +2,6 @@
 #Matthew Wersebe 3-14-2021
 #South Center 13B LOD 26 Linkage Map.
 ######################################
-
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
@@ -386,7 +385,6 @@ annotate_figure(marey_stack, top = text_grob("Marey Maps", color = "black", face
 #lmv.linkage.plot(female_map, outfile_f, mapthese = c("CHR01", "CHR02", "CHR03", "CHR04", "CHR05", "CHR06", "CHR07", "CHR08", "CHR09", "CHR10", "CHR11", "CHR12"), dupnbr =TRUE, cex.axis = 1, at.axis = at.axis, labels.axis = axlab)
 ## Not run ##
 ###########################################################################################
-###########################################################################################
 #Relationship of estimated phyiscal and genetic lengths of chromosomes
 
 correlation <- read.table("correlation.txt", header=F)
@@ -400,19 +398,16 @@ corr.plot_m <-ggplot(correlation, aes(x=V2, y=V4))+
   geom_point(color= "steelblue")+
   ggtitle("Male Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Genetic Length (cM)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 270, method = "pearson")+
-  stat_regline_equation(label.y = 250)
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
 corr.plot_m
 
 corr.plot_f <-ggplot(correlation, aes(x=V2, y=V5))+
   geom_point(color=  "darkred")+
   ggtitle("Female Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Genetic Length (cM)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 220, method = "pearson")+
-  stat_regline_equation(label.y = 200)
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
 corr.plot_f
+
 
 #Recombination Rates
 
@@ -441,18 +436,14 @@ rate.plot_m <-ggplot(correlation, aes(x=V2, y=male_recomb_rate))+
   geom_point(color= "steelblue")+
   ggtitle("Male Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 25, label.x = 2e+07, method = "pearson")+
-  stat_regline_equation(label.y = 20, label.x = 2e+07)
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
 rate.plot_m
 
 rate.plot_f <-ggplot(correlation, aes(x=V2, y=female_recomb_rates))+
   geom_point(color=  "darkred")+
   ggtitle("Female Map")+
   xlab("Phyiscal Length (MB)")+ ylab("Recombination Rate (cM/MB)")+
-  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = 25, label.x = 2e+07, method = "pearson")+
-  stat_regline_equation(label.y = 20, label.x = 2e+07)
+  geom_smooth(method="lm", se=TRUE, fullrange=FALSE, level=0.95, data = correlation)+theme_light()
 rate.plot_f
 
 ggarrange(corr.plot_m, corr.plot_f, rate.plot_m, rate.plot_f, labels = c("A)", "B)", "C)", "D)"), ncol = 2, nrow = 2 )

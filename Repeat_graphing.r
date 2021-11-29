@@ -1,4 +1,14 @@
+## South Center Genome Analysis
+## Repeat Content on Chromosomes:
+## Matthew Wersebe University of Oklahoma, 3.14.2021
+## ######################################################
+setwd("~/Downloads/")
 
+LTR = read.table("LTR.gff", header = F)
+LINE = read.table("LINE.gff", header = F)
+DNA = read.table("DNA.gff", header = F)
+UNKNOWN = read.table("UNKNOWN.gff", header = F)
+coding = read.table("cds.gff", header = F)
 
 CHR01_repeat <- repeat_content(Data_total_repeat = repeats, Data_LTR = LTR, Data_LINE = LINE, Data_DNA = DNA, Data_UNKNOWN = UNKNOWN, Data_CODING = coding, Window_size = Window_size, Step_size = Step_size, Chromosome = "CHR01")
 

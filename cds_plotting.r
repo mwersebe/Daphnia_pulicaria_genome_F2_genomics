@@ -155,6 +155,7 @@ repeat_content <- function(Data_total_repeat,Data_LTR, Data_DNA, Data_LINE, Data
 #Example Use:
 
 CHR01_repeat <- repeat_content(Data_total_repeat = repeats, Data_LTR = LTR, Data_LINE = LINE, Data_DNA = DNA, Data_UNKNOWN = UNKNOWN, Data_CODING = coding, Window_size = Window_size, Step_size = Step_size, Chromosome = "CHR01")
+head(CHR01_repeat)
 
 rep_content_1 <- ggplot(CHR01_repeat, aes(x=V1)) + 
   geom_line(aes(y = V3, color= "red"))+

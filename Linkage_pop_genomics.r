@@ -1,5 +1,5 @@
 ## South Center Genome
-## Populations Genomics Using the SRA Daphnia pulex and Daphnia pulicaria 
+## Population Genomics Using the SRA Daphnia pulex and Daphnia pulicaria 
 ## ddRADseq.
 ## Matthew Wersebe (University of Oklahoma) 4-5-2021
 #############################################################################
@@ -47,7 +47,7 @@ pop(single_snp.genlight) <- pop.map$V2
 
 #plot the tree with ape:
 
-cols <- c("blue","purple","red")
+cols <- c("darkcyan","purple","red")
 
 #plot.phylo(daphnia.tree, cex = 0.5, font = 0.3, adj = 0, tip.color = cols[pop(single_snp.genlight)])
 #nodelabels(daphnia.tree$node.lable, adj = c(1.3, -0.5), frame = "n", cex = 0.5,font = 3, xpd = TRUE)
@@ -68,6 +68,9 @@ barplot(100*daphnia.pca$eig/sum(daphnia.pca$eig), col = heat.colors(180), main =
 title(ylab="Percent Variance\nexplained", line =2)
 title(xlab="Eignevalues", line = 1)
 
+
+Variance <- 100*daphnia.pca$eig/sum(daphnia.pca$eig)
+head(Variance)
 #Scatter 
 pca.scores <- as.data.frame(daphnia.pca$scores)
 pca.scores$pop <- pop(single_snp.genlight)
@@ -75,10 +78,12 @@ pca.scores$pop <- pop(single_snp.genlight)
 daphnia.plot <- ggplot(pca.scores, aes(x=PC1, y=PC2, colour=pop))+
   geom_point(size = 2)+
   stat_ellipse(level = 0.95, size = 1)+
-  scale_color_manual(values = cols)+
+  scale_color_manual(labels = c("Pulex", "Hybrid", "Pulicaria"), values = cols)+
   geom_hline(yintercept = 0)+
   geom_vline(xintercept = 0)+
-  theme_bw()
+  theme_bw()+
+  labs (y = "PC2 (5.17%)", x = "PC1 (26.18%)")+
+  theme(text = element_text(size = 20), legend.title = element_blank())
 daphnia.plot
 
 ###############################################################################
@@ -115,7 +120,8 @@ Fst_distro <- ggplot(pe_pi_singlesnp_fst, aes(x = WEIR_AND_COCKERHAM_FST))+
   geom_histogram(color="darkblue", fill="lightblue")+
   xlab("Weir and Cockerham Fst")+
   ylab("Count")+
-  theme_classic()
+  theme_classic()+
+  ggtitle("Distibution of Fst Values")
 Fst_distro
 ################################################################################################################
 # PCAdapt outlier analysis
@@ -316,6 +322,8 @@ recomb_outliers <- rbind.data.frame(chr01, chr02, chr03, chr04,chr05,chr06,chr07
 tail(recomb_outliers)
 length(recomb_outliers[,1])
 
+recomb_outliers[mapply(is.infinite, recomb_outliers)] <- NA
+
 
 
 # Subsample a group of 762 "background" Loci and measure the recomb rate:
@@ -491,10 +499,10 @@ cds_background <- rbind.data.frame(CHR01, CHR02, CHR03, CHR04, CHR05, CHR06, CHR
 analyze_cds_fst <- rbind.data.frame(cds_outliers, cds_background)
 
 
-analyze_cds_fst <- analyze_cds_fst %>% mutate(outlier = ifelse(WEIR_AND_COCKERHAM_FST > threshold.fst, "outlier", "background"))
+analyze_cds_fst <- analyze_cds_fst %>% mutate(outlier = ifelse(WEIR_AND_COCKERHAM_FST > threshold.fst, "Outlier", "Background"))
 
 
-names(analyze_cds_fst)[5] <- "CDS_content"
+names(cds_outliers)[5] <- "CDS_content"
 
 
 #Cds boxplot
@@ -510,7 +518,7 @@ cds_BP <- ggplot(analyze_cds_fst, aes(x= outlier, y = CDS_content))+
 t.test(cds_outliers$cds_content, cds_background$cds_content, alternative = "greater")
 
 
-ggarrange(male_BP, female_BP, cds_BP, Fst_distro, ncol = 2, nrow = 2, labels = c("A)", "B)", "C)", "D)"))
+ggarrange(male_test, female_test, cds_test, Fst_distro, ncol = 2, nrow = 2, labels = c("A)", "B)", "C)", "D)"))
 
 ####################################################################################################################################################
 # Sliding Window Fst pi and Dxy: 
@@ -524,7 +532,7 @@ names(windows_01)
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_01$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_01, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 1")+
@@ -536,7 +544,7 @@ PA_PX_Fst <- ggplot(windows_01, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_01$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_01, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -548,6 +556,8 @@ PA_PX_Dxy <- ggplot(windows_01, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
 
 #Pulicaria pi
 
+mean_pipa <- mean(windows_01$pi_Daphnia_pulicaria)
+mean_pipa
 Puli_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -556,6 +566,10 @@ Puli_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 44000000)
 
 # PI Pulex
+
+mean_pipx <- mean(windows_01$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -564,8 +578,21 @@ Pulex_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulex))+
   theme_light()+ expand_limits(x = 44000000)
 
 
-#PI Hybrids
+### Pi both species: 
+head(windows_01)
+Puli_Pulex_pi <- ggplot(windows_01, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 1")+
+  theme_light()+ expand_limits(x = 44000000)+ theme(legend.title = element_blank())
+Puli_Pulex_pi
 
+
+#PI Hybrids
+## not run
 hybrid_pi <- ggplot(windows_01, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pulicaria))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -580,7 +607,7 @@ mean(puli_D$TajimaD)
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR01")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -595,7 +622,7 @@ mean(pulex_D$TajimaD)
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR01")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -611,7 +638,7 @@ rec_rate_1 <- ggplot(recombination_1, aes(x=V3)) +
   xlab("Physical Position")+
   scale_color_identity(guide = "legend", labels = c("Female Map", "Male Map"))+
   ggtitle("LG 1 Recombination")+
-  theme_light()+ expand_limits(x = 44000000)
+  theme_light()+ expand_limits(x = 44000000) +theme(legend.title = element_blank())
 
 rep_content_1 <- ggplot(CHR01_repeat, aes(x=V1)) + 
   geom_line(aes(y = V3, color= "red"))+
@@ -619,13 +646,13 @@ rep_content_1 <- ggplot(CHR01_repeat, aes(x=V1)) +
   geom_line(aes(y = V5, color= "darkgreen"))+
   geom_line(aes(y = V7, color = "black"))+
   xlab("Phyiscal Position")+ ylab("Window Content")+
-  ggtitle("Sequence Content")+
+  ggtitle("Sequence Content on LG 1")+
   scale_color_identity(guide = "legend", labels = c("Coding Sequence", "DNA", "LINE", "LTR"))+
-  theme_light()+ expand_limits(x = 44000000)
+  theme_light()+ expand_limits(x = 44000000) + theme(legend.title = element_blank())
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_1, PA_PX_Fst, PA_PX_Dxy, rep_content, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_1, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_1, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -639,6 +666,7 @@ windows_02 <- subset(windows, windows$scaffold == "CHR02")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_02$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_02, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -651,7 +679,7 @@ PA_PX_Fst <- ggplot(windows_02, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_02$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_02, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -663,6 +691,9 @@ PA_PX_Dxy <- ggplot(windows_02, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
 
 #Pulicaria pi
 
+mean_pipa <- mean(windows_02$pi_Daphnia_pulicaria)
+mean_pipa
+
 Puli_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -671,6 +702,9 @@ Puli_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 13000000)
 
 # PI Pulex
+mean_pipx <- mean(windows_02$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -678,9 +712,21 @@ Pulex_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulex))+
   ggtitle("Daphnia pulex Nucleotide Diversity on LG 2")+
   theme_light()+ expand_limits(x = 13000000)
 
+### Pi both species: 
+head(windows_02)
+Puli_Pulex_pi <- ggplot(windows_02, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 2")+
+  theme_light()+ expand_limits(x = 13000000)+ theme(legend.title = element_blank())
+Puli_Pulex_pi
+
 
 #PI Hybrids
-
+## not run
 hybrid_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pulicaria))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -692,7 +738,7 @@ hybrid_pi <- ggplot(windows_02, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR02")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -706,7 +752,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR02")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -736,7 +782,7 @@ rep_content_2 <- ggplot(CHR02_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_2, PA_PX_Fst, PA_PX_Dxy, rep_content_2, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_2, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_2, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -747,6 +793,7 @@ windows_03 <- subset(windows, windows$scaffold == "CHR03")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_03$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_03, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -759,6 +806,7 @@ PA_PX_Fst <- ggplot(windows_03, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_03$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_03, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -768,8 +816,22 @@ PA_PX_Dxy <- ggplot(windows_03, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 13600000)
 
+## both species pi
+Puli_Pulex_pi <- ggplot(windows_03, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 3")+
+  theme_light()+ expand_limits(x = 13600000)+ theme(legend.title = element_blank())
+Puli_Pulex_pi
+
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_03$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_03, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -779,6 +841,9 @@ Puli_pi <- ggplot(windows_03, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 13600000)
 
 # PI Pulex
+mean_pipx <- mean(windows_03$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_03, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -800,6 +865,7 @@ hybrid_pi <- ggplot(windows_03, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR03")
 mean_D <- mean(Puli_D_chr01$TajimaD)
+mean_D
 
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -814,7 +880,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR03")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -844,7 +910,7 @@ rep_content_3 <- ggplot(CHR03_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_3, PA_PX_Fst, PA_PX_Dxy, rep_content_3, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_3, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_3, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -856,6 +922,7 @@ windows_04 <- subset(windows, windows$scaffold == "CHR04")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_04$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_04, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -868,6 +935,7 @@ PA_PX_Fst <- ggplot(windows_04, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_04$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_04, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -877,8 +945,21 @@ PA_PX_Dxy <- ggplot(windows_04, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 22600000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_04, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 4")+
+  theme_light()+ expand_limits(x = 22600000)+ theme(legend.title = element_blank())
+Puli_Pulex_pi
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_04$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_04, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -888,6 +969,10 @@ Puli_pi <- ggplot(windows_04, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 22600000)
 
 # PI Pulex
+
+mean_pipx <- mean(windows_04$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_04, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -909,6 +994,7 @@ hybrid_pi <- ggplot(windows_04, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR04")
 mean_D <- mean(Puli_D_chr01$TajimaD)
+mean_D
 
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -923,6 +1009,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR04")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
+mean_D
 
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -953,7 +1040,7 @@ rep_content_4 <- ggplot(CHR04_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_4, PA_PX_Fst, PA_PX_Dxy, rep_content_4, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_4, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_4, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -964,6 +1051,7 @@ windows_05 <- subset(windows, windows$scaffold == "CHR05")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_05$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_05, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -976,6 +1064,7 @@ PA_PX_Fst <- ggplot(windows_05, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_05$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_05, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -985,8 +1074,20 @@ PA_PX_Dxy <- ggplot(windows_05, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 7300000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_05, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 5")+
+  theme_light()+ expand_limits(x = 7300000)+ theme(legend.title = element_blank())
+
 
 #Pulicaria pi
+mean_pipa <- mean(windows_05$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_05, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -996,6 +1097,9 @@ Puli_pi <- ggplot(windows_05, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 7300000)
 
 # PI Pulex
+mean_pipx <- mean(windows_05$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_05, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1017,6 +1121,7 @@ hybrid_pi <- ggplot(windows_05, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR05")
 mean_D <- mean(Puli_D_chr01$TajimaD)
+mean_D
 
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -1031,7 +1136,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR05")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1061,7 +1166,7 @@ rep_content_5 <- ggplot(CHR05_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_5, PA_PX_Fst, PA_PX_Dxy, rep_content_5, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_5, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_5, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1072,6 +1177,7 @@ windows_06 <- subset(windows, windows$scaffold == "CHR06")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_06$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_06, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -1084,6 +1190,7 @@ PA_PX_Fst <- ggplot(windows_06, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_06$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_06, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -1093,8 +1200,20 @@ PA_PX_Dxy <- ggplot(windows_06, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 24300000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_06, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 6")+
+  theme_light()+ expand_limits(x = 24300000)+ theme(legend.title = element_blank())
+
 
 #Pulicaria pi
+mean_pipa <- mean(windows_06$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_06, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1104,6 +1223,9 @@ Puli_pi <- ggplot(windows_06, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 24300000)
 
 # PI Pulex
+mean_pipx <- mean(windows_06$pi_Daphnia_pulex)
+mean_pipx
+
 Pulex_pi <- ggplot(windows_06, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1125,7 +1247,7 @@ hybrid_pi <- ggplot(windows_06, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR06")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1139,7 +1261,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR06")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1169,7 +1291,7 @@ rep_content_6 <- ggplot(CHR06_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_6, PA_PX_Fst, PA_PX_Dxy, rep_content_6, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_6, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_6, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1180,6 +1302,7 @@ windows_07 <- subset(windows, windows$scaffold == "CHR07")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_07$Fst_Daphnia_pulex_Daphnia_pulicaria)
+mean_fst
 
 PA_PX_Fst <- ggplot(windows_07, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
@@ -1192,6 +1315,7 @@ PA_PX_Fst <- ggplot(windows_07, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_07$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_07, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -1201,8 +1325,21 @@ PA_PX_Dxy <- ggplot(windows_07, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 18900000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_07, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 7")+
+  theme_light()+ expand_limits(x = 18900000)+ theme(legend.title = element_blank())
+
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_07$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_07, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1212,6 +1349,9 @@ Puli_pi <- ggplot(windows_07, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 18900000)
 
 # PI Pulex
+mean_pipa <- mean(windows_07$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_07, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1233,6 +1373,7 @@ hybrid_pi <- ggplot(windows_07, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR07")
 mean_D <- mean(Puli_D_chr01$TajimaD)
+mean_D
 
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -1247,6 +1388,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR07")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
+mean_D
 
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
@@ -1277,7 +1419,7 @@ rep_content_7 <- ggplot(CHR07_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_7, PA_PX_Fst, PA_PX_Dxy, rep_content_7, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_7, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_7, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1288,7 +1430,7 @@ windows_08 <- subset(windows, windows$scaffold == "CHR08")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_08$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_08, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 8")+
@@ -1300,7 +1442,7 @@ PA_PX_Fst <- ggplot(windows_08, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_08$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_08, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -1309,8 +1451,20 @@ PA_PX_Dxy <- ggplot(windows_08, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 16000000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_08, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 8")+
+  theme_light()+ expand_limits(x = 16000000)+ theme(legend.title = element_blank())
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_08$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_08, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1320,6 +1474,9 @@ Puli_pi <- ggplot(windows_08, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 16000000)
 
 # PI Pulex
+mean_pipa <- mean(windows_08$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_08, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1341,7 +1498,7 @@ hybrid_pi <- ggplot(windows_08, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR08")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1355,7 +1512,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR08")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1385,7 +1542,7 @@ rep_content_8 <- ggplot(CHR08_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_8, PA_PX_Fst, PA_PX_Dxy, rep_content_8, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_8, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_8, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1396,7 +1553,7 @@ windows_09 <- subset(windows, windows$scaffold == "CHR09")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_09$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_09, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 9")+
@@ -1408,6 +1565,7 @@ PA_PX_Fst <- ggplot(windows_09, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_09$dxy_Daphnia_pulex_Daphnia_pulicaria)
+mean_Dxy
 
 PA_PX_Dxy <- ggplot(windows_09, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
@@ -1417,8 +1575,20 @@ PA_PX_Dxy <- ggplot(windows_09, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 4500000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_09, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 9")+
+  theme_light()+ expand_limits(x = 4500000)+ theme(legend.title = element_blank())
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_09$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_09, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1428,6 +1598,9 @@ Puli_pi <- ggplot(windows_09, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 4500000)
 
 # PI Pulex
+mean_pipa <- mean(windows_09$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_09, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1449,7 +1622,7 @@ hybrid_pi <- ggplot(windows_09, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR09")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1463,7 +1636,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR09")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1493,7 +1666,7 @@ rep_content_9 <- ggplot(CHR09_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_9, PA_PX_Fst, PA_PX_Dxy, rep_content_9, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_9, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_9, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1505,7 +1678,7 @@ windows_10<- subset(windows, windows$scaffold == "CHR10")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_10$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_10, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 10")+
@@ -1517,7 +1690,7 @@ PA_PX_Fst <- ggplot(windows_10, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_10$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_10, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -1526,8 +1699,20 @@ PA_PX_Dxy <- ggplot(windows_10, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 7600000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_10, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 10")+
+  theme_light()+ expand_limits(x = 7600000)+ theme(legend.title = element_blank())
+
 
 #Pulicaria pi
+mean_pipa <- mean(windows_10$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_10, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1537,6 +1722,9 @@ Puli_pi <- ggplot(windows_10, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 7600000)
 
 # PI Pulex
+mean_pipa <- mean(windows_10$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_10, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1558,7 +1746,7 @@ hybrid_pi <- ggplot(windows_10, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR10")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1572,7 +1760,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR10")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1602,7 +1790,7 @@ rep_content_10 <- ggplot(CHR10_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_10, PA_PX_Fst, PA_PX_Dxy, rep_content_10, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_10, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_10, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1614,7 +1802,7 @@ windows_11<- subset(windows, windows$scaffold == "CHR11")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_11$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_11, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 11")+
@@ -1626,7 +1814,7 @@ PA_PX_Fst <- ggplot(windows_11, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_11$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_11, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -1635,8 +1823,19 @@ PA_PX_Dxy <- ggplot(windows_11, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light()+ expand_limits(x = 4700000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_11, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 11")+
+  theme_light()+ expand_limits(x = 4700000)+ theme(legend.title = element_blank())
 
 #Pulicaria pi
+mean_pipa <- mean(windows_11$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_11, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1646,6 +1845,9 @@ Puli_pi <- ggplot(windows_11, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 4700000)
 
 # PI Pulex
+mean_pipa <- mean(windows_11$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_11, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1667,7 +1869,7 @@ hybrid_pi <- ggplot(windows_11, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR11")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1681,7 +1883,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR11")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1711,7 +1913,7 @@ rep_content_11 <- ggplot(CHR11_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_11, PA_PX_Fst, PA_PX_Dxy, rep_content_11, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_11, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_11, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
@@ -1723,7 +1925,7 @@ windows_12<- subset(windows, windows$scaffold == "CHR12")
 
 # Pulex-Pulicaria Fst
 mean_fst <- mean(windows_12$Fst_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_fst
 PA_PX_Fst <- ggplot(windows_12, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "deeppink3")+
   ggtitle("Differentiation on LG 12")+
@@ -1735,7 +1937,7 @@ PA_PX_Fst <- ggplot(windows_12, aes(x=start, y= Fst_Daphnia_pulex_Daphnia_pulica
 
 #DXY Divergence: 
 mean_Dxy <- mean(windows_12$dxy_Daphnia_pulex_Daphnia_pulicaria)
-
+mean_Dxy
 PA_PX_Dxy <- ggplot(windows_12, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulicaria))+
   geom_line(color = "steelblue")+
   ylab("Dxy")+
@@ -1744,8 +1946,21 @@ PA_PX_Dxy <- ggplot(windows_12, aes(x=start, y= dxy_Daphnia_pulex_Daphnia_pulica
   geom_hline(yintercept = mean_Dxy)+
   theme_light() + expand_limits(x = 3500000)
 
+#both species pi
+Puli_Pulex_pi <- ggplot(windows_12, aes(x= start, y = sites))+
+  geom_line(aes(y = pi_Daphnia_pulex, color= "red"))+
+  geom_line(aes(y = pi_Daphnia_pulicaria, color= "blue"))+
+  scale_color_identity(guide = "legend", labels = c("Pulicaria", "Pulex"))+
+  xlab("Phyiscal Position")+
+  ylab("Pi")+
+  ggtitle("Nucleotide Diversity on LG 12")+
+  theme_light()+ expand_limits(x = 3500000)+ theme(legend.title = element_blank())
+
 
 #Pulicaria pi
+
+mean_pipa <- mean(windows_11$pi_Daphnia_pulicaria)
+mean_pipa
 
 Puli_pi <- ggplot(windows_12, aes(x= start, y = pi_Daphnia_pulicaria))+
   geom_line()+
@@ -1755,6 +1970,9 @@ Puli_pi <- ggplot(windows_12, aes(x= start, y = pi_Daphnia_pulicaria))+
   theme_light()+ expand_limits(x = 3500000)
 
 # PI Pulex
+mean_pipa <- mean(windows_10$pi_Daphnia_pulex)
+mean_pipa
+
 Pulex_pi <- ggplot(windows_12, aes(x= start, y = pi_Daphnia_pulex))+
   geom_line()+
   xlab("Phyiscal Position")+
@@ -1776,7 +1994,7 @@ hybrid_pi <- ggplot(windows_12, aes(x= start, y = pi_Daphnia_pulex_x_Daphnia_pul
 
 Puli_D_chr01 <- subset(puli_D, puli_D$CHROM == "CHR12")
 mean_D <- mean(Puli_D_chr01$TajimaD)
-
+mean_D
 TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1790,7 +2008,7 @@ TD <- ggplot(Puli_D_chr01, aes(x=BIN_START, y=TajimaD))+
 Pulex_D_chr01 <- subset(pulex_D, pulex_D$CHROM == "CHR12")
 
 mean_D <- mean(Pulex_D_chr01$TajimaD)
-
+mean_D
 TD_px <- ggplot(Pulex_D_chr01, aes(x=BIN_START, y=TajimaD))+
   geom_line()+
   xlab("Physical Position")+
@@ -1820,7 +2038,7 @@ rep_content_12 <- ggplot(CHR12_repeat, aes(x=V1)) +
 #Arrange the plots along the X axis:
 
 
-plot <- ggarrange(rec_rate_12, PA_PX_Fst, PA_PX_Dxy, rep_content_12, heights = c(4,3,3,4), ncol = 1, nrow = 4, align = "v", axis = "2", legend = "bottom", common.legend = F)
+plot <- ggarrange(rec_rate_12, PA_PX_Fst, Puli_Pulex_pi, PA_PX_Dxy, rep_content_12, heights = c(5,4,5,4,5), ncol = 1, nrow = 5, align = "v", axis = "2", legend = "bottom", common.legend = F)
 plot$`1`
 
 ggarrange(Puli_pi, TD, Pulex_pi, TD_px, heights = c(3,3,3,3), ncol = 1, nrow = 4)
